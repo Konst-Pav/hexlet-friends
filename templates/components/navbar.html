@@ -28,15 +28,10 @@
             <a class="dropdown-item" href="{% url 'contributors:leaderboard_issues' %}">{% trans "Issues" %}</a>
           </div>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-             aria-expanded="false">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'contributors:contributors_list' %}">
             {% trans "Contributors" %}
           </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'contributors:contributors_for_week' %}">{% trans "For period" %}</a>
-            <a class="dropdown-item" href="{% url 'contributors:contributors_list' %}">{% trans "All-time" %}</a>
-          </div>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'contributors:open_issues' %}">
