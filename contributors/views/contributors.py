@@ -1,15 +1,18 @@
-from django.views import generic
+from django_filters.views import FilterView
 
-from contributors.forms.forms import CombinedSearchForm
 from contributors.models import Contributor
+from contributors.views.filters import ContributorsFilter
 from contributors.views.mixins import TableSortSearchAndPaginationMixin
 
 
-class ListView(TableSortSearchAndPaginationMixin, generic.ListView):
+class ListView(
+    TableSortSearchAndPaginationMixin,
+    FilterView,
+):
     """A list of contributors with contributions."""
 
-    queryset = Contributor.objects.visible().with_contributions()
     template_name = 'contributors_list.html'
+    filterset_class = ContributorsFilter
     sortable_fields = (
         'login',
         'name',
@@ -23,22 +26,11 @@ class ListView(TableSortSearchAndPaginationMixin, generic.ListView):
     searchable_fields = ('login', 'name')
     ordering = sortable_fields[0]
 
-    def get_context_data(self, **kwargs):
-        """Get search form by organizations."""
-        context = super().get_context_data(**kwargs)
-        context['form_org'] = CombinedSearchForm(self.request.GET)
-        return context
-
     def get_queryset(self):  # noqa: WPS615
-        """Get filter queryset."""
-        queryset = super().get_queryset().prefetch_related(
-            'contributors__organization',
+        """Add queryset."""
+        queryset = Contributor.objects.visible().with_contributions()
+        self.filterset = self.filterset_class(
+            self.request.GET,
+            queryset=queryset,
         )
-        form = CombinedSearchForm(self.request.GET)
-        if form.is_valid():
-            organizations = form.cleaned_data['organizations']
-            if organizations:
-                queryset = queryset.filter(
-                    contributors__organization__name__icontains=organizations,
-                ).distinct()
-        return queryset
+        return self.filterset.qs.distinct()

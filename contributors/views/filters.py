@@ -5,7 +5,7 @@ from django.forms.widgets import TextInput
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from contributors.models import Contribution, ContributionLabel
+from contributors.models import Contribution, ContributionLabel, Contributor
 from contributors.utils import misc
 
 STATE_CHOICES = (
@@ -18,6 +18,58 @@ PERIOD_CHOICES = (
     ('for_month', _('For month')),
     ('for_year', _('For year')),
 )
+
+CONTRIBUTORS_PERIOD_CHOICES = (
+    ('all', _('Of all time')),
+    ('for_month', _('For month')),
+    ('for_week', _('For week')),
+)
+
+
+class ContributorsFilter(django_filters.FilterSet):
+    """Contributors filter."""
+
+    contributors_by_period = django_filters.ChoiceFilter(
+        field_name='contribution__created_at',
+        method='get_contributors_by_period',
+        choices=CONTRIBUTORS_PERIOD_CHOICES,
+        label='',
+        widget=forms.Select,
+        initial=CONTRIBUTORS_PERIOD_CHOICES[0],
+        empty_label=None,
+    )
+    contributor_name = django_filters.CharFilter(
+        field_name='contribution__contributor__login',
+        lookup_expr='icontains',
+        label='',
+        widget=TextInput(attrs={'placeholder': _('Name')}),
+    )
+    organization = django_filters.CharFilter(
+        field_name='contribution__repository__organization__name',
+        lookup_expr='icontains',
+        label='',
+        widget=TextInput(attrs={'placeholder': _('Organization name')}),
+    )
+
+    class Meta:  # noqa: WPS306
+        model = Contributor
+        fields = [
+            'contributors_by_period',
+            'contributor_name',
+            'organization',
+        ]
+
+    def get_contributors_by_period(self, queryset, name, value):  # noqa: WPS110, WPS615, E501
+        """Contributions filter for a period."""
+        if value == 'for_month':
+            queryset = queryset.filter(
+                contribution__created_at__gte=misc.datetime_month_ago(),
+            ).distinct()
+        elif value == 'for_week':
+            queryset = queryset.filter(
+                contribution__created_at__gte=misc.datetime_week_ago(),
+            ).distinct()
+        return queryset
 
 
 class IssuesFilter(django_filters.FilterSet):

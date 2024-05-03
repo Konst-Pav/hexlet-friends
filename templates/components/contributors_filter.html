@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% load crispy_forms_tags i18n contrib_extras %}
 
-</body>
-</html>
+
+<!-- Filters for contributors -->
+
+<form class="row g-1" method="get">
+  <div class="col">
+    {{ filter.form.contributors_by_period|as_crispy_field }}
+  </div>
+  <div class="col">
+    {{ filter.form.contributor_name|as_crispy_field }}
+  </div>
+  <div class="col">
+    {{ filter.form.organization|as_crispy_field }}
+  </div>
+  <div class="col mb-0">
+    <input class="btn btn btn-outline-primary" type="submit" value="{% trans 'Search' %}">
+  </div>
+</form>
+
+

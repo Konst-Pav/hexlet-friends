@@ -39,6 +39,34 @@ class TableSortSearchForm(forms.Form):
         return helper
 
 
+class ContributorsFilterForm(forms.Form):
+    """Search form of contributors by organization."""
+
+    contributor_name = forms.CharField(
+        label=False,
+        required=False,
+        widget=forms.TextInput(),
+    )
+    organizations = forms.CharField(
+        label=False,
+        required=False,
+        widget=forms.TextInput(),
+    )
+
+    @property
+    def helper(self):
+        """Control form attributes and its layout."""
+        helper = FormHelper()
+        helper.form_method = 'get'
+        helper.form_class = 'd-flex'
+        helper.layout = Layout(
+            Field('search', placeholder=_("Filter by name")),
+            Field('search', placeholder=_("Filter by name")),
+        )
+        return helper
+
+
+# Delete
 class CombinedSearchForm(TableSortSearchForm):
     """Search form of contributors by organization."""
 
@@ -68,6 +96,7 @@ class CombinedSearchForm(TableSortSearchForm):
             ),
         )
         return helper
+# Delete
 
 
 class NameStatusFilterForm(TableSortSearchForm):
